@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure File Sharing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white flex items-center justify-center h-screen">
+    
+    <div class="w-full max-w-lg p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-semibold">Secure File Sharing</h2>
+            <button id="darkModeToggle" class="p-2 bg-gray-300 dark:bg-gray-700 rounded-full">🌙</button>
+        </div>
+        
+        <!-- Drag & Drop Upload Area -->
+        <div id="dropArea" class="mt-4 p-6 border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-md text-center">
+            <p class="text-gray-500 dark:text-gray-300">Drag & drop files here or</p>
+            <input type="file" id="fileInput" class="hidden" multiple>
+            <button onclick="document.getElementById('fileInput').click()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md">Browse Files</button>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div id="progressContainer" class="hidden mt-4">
+            <p class="text-sm">Uploading...</p>
+            <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-600">
+                <div id="progressBar" class="bg-blue-500 h-2 rounded-full w-0"></div>
+            </div>
+        </div>
+        
+        <!-- Uploaded Files List -->
+        <div id="fileList" class="mt-6">
+            <h3 class="text-lg font-semibold">Uploaded Files</h3>
+            <ul id="files" class="mt-2"></ul>
+        </div>
+    </div>
+    
+    <script>
+        // Dark Mode Toggle
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+
+        });
+        
+        // Drag & Drop File Upload
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('border-blue-500');
+        });
+        
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('border-blue-500');
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('border-blue-500');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        function handleFiles(files) {
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            
+            [...files].forEach((file, index) => {
+                setTimeout(() => {
+                    progressBar.style.width = ((index + 1) / files.length) * 100 + '%';
+                    addFileToList(file.name, '#'); // Simulating file upload
+                }, 1000 * (index + 1));
+            });
+        }
+        
+        function addFileToList(fileName, fileUrl) {
+            const fileList = document.getElementById('files');
+            const listItem = document.createElement('li');
+            listItem.className = "border p-2 rounded my-2 flex justify-between items-center";
+            listItem.innerHTML = `
+                <span>${fileName}</span>
+                <div>
+                    <a href="${fileUrl}" class="text-blue-500" download>Download</a>
+                    <button onclick="copyLink('${fileUrl}')" class="ml-2 bg-gray-300 px-2 py-1 rounded">📋 Copy</button>
+                </div>
+            `;
+            fileList.appendChild(listItem);
+        }
+        
+        function copyLink(link) {
+            navigator.clipboard.writeText(link).then(() => alert('Link copied!'));
+        }
+    </script>
+</body>
+</html>
